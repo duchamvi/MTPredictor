@@ -48,7 +48,7 @@ void readValuesFile(char* filename, int n, uint32_t output[]){
 		printf("%u\n", output[i]);
 		i++;
 	}
-	printf("Closing file %s", filename);
+	printf("Closing file %s\n", filename);
 	fclose(mtfile);
 }
 
@@ -58,6 +58,15 @@ void untwistFile(char* filename)
 	// extract values
 	uint32_t output[MT_SIZE];
 	readValuesFile(filename, MT_SIZE, output);
+
+	printf("\nPredictions :\n");
+	mt_internal_state_t creation;
+	reverseState(output, creation.MT);
+	creation.index = 624;
+	int i;
+	for (i=0; i<10; i++){
+		printf("%u\n", mt_generate_number(&creation));
+	}
 
 }
 
