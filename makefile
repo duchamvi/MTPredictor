@@ -2,7 +2,10 @@ CC=gcc
 CFLAGS=-W -Wall
 LDFLAGS=
 EXEC=executable
-SRC= MT19937.c main.c
+
+SRCC=MT19937.c untwist.c
+SRCH= $(SRCC:.c=.h)
+SRC= $(SRCC) main.c
 OBJ= $(SRC:.c=.o)
 
 all: $(EXEC)
@@ -10,7 +13,7 @@ all: $(EXEC)
 executable: $(OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
-main.o: MT19937.h
+main.o: $(SRCH)
 
 %.o: %.c
 	$(CC) -o $@ -c $< $(CFLAGS)
