@@ -48,3 +48,11 @@ uint32_t reverseWord(uint32_t number)
     number = reverseRightShiftXor(number, 11);
     return number;
 }
+
+void reverseState(uint32_t output[], uint32_t state_destination[])
+{
+    int i;
+    for (i=0; i<MT_SIZE; i++){
+        state_destination[i] = reverseWord(output[i]);
+    }
+}
