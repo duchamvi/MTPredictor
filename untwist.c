@@ -56,3 +56,66 @@ void reverseState(uint32_t output[], uint32_t state_destination[])
         state_destination[i] = reverseWord(output[i]);
     }
 }
+
+uint32_t reconstructPartialState(uint32_t statei0, uint32_t statei1)
+{
+	uint32_t state, temp;
+	temp = (statei0 & 0x80000000) + (statei1 & 0x7fffffff);
+	state =  temp >> 1; 
+	if (temp%2 != 0){
+		state ^= 0x9908b0df;
+	}
+	return state;
+}
+
+
+void guess0(uint32_t output[], uint32_t stateInit[], int k)
+{
+	uint32_t i0, i1, state, word;
+	uint32_t bound = 0x1 << k;
+
+	for (i0 = 0; i0 <= 1; i0++) {
+		uint32_t bit0 = (i0 << 31);
+		/*printf("0x%x\n", bit0);*/
+
+		for (i1 = 0; i1 < bound; i1++){
+			/*printf("0x%x\n", i1 <<(32-k));*/
+			uint32_t state1 = reverseWord(output[1] ^ (i1 << (32 - k)));
+            /* RECONSTRUCTION */
+            state = reconstructPartialState(bit0, state1);
+            word = temper(state) ^ output[397];
+            /*printf("Word = 0x%x\n", word);*/
+            if ((word & (0xffffffff >> k)) == output[624]){
+                stateInit[0] = bit0;
+                stateInit[1] = state1;
+            } 
+		}
+	}
+} 
+
+void guessi(uint32_t output[], uint32_t stateInit[], int k, int i)
+{
+	uint32_t i1, state, word;
+	uint32_t bound = 0x1 << k;
+
+    for (i1 = 0; i1 < bound; i1++){
+        /*printf("0x%x\n", i1 <<(32-k));*/
+        uint32_t state1 = reverseWord(output[i + 1] ^ (i1 << (32 - k)));
+        /* RECONSTRUCTION */
+        state = reconstructPartialState(stateInit[i], state1);
+        word = temper(state) ^ output[i + 397];
+        /*printf("Word = 0x%x\n", word);*/
+        if ((word & (0xffffffff >> k)) == output[i + 624]){
+            stateInit[i + 1] = state1;
+        } 
+    }
+} 
+
+void guessTruncated(uint32_t output[], uint32_t stateInit[], int k)
+{
+    guess0(output, stateInit, k);
+    int i;
+    for (i=1; i< MT_SIZE-1; i++){
+        guessi(output, stateInit, k, i);
+    } 
+}

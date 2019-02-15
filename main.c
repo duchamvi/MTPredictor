@@ -162,16 +162,27 @@ void guessInaive(uint32_t output[], int k, int i) //WIP
 void testuntwisttruncatedFile(char* filename, int n, int k)
 /* n = length of output, k = amount of bits to remove */
 {
+	
+	uint32_t mask = 0xffffffff >> k;
+
 	// extract values
 	uint32_t output[n];
 	readValuesFile(filename, n, output);
 	truncatebits(output, n, k);
-	guess0naive(output, k);
 
+	mt_internal_state_t creation;
+	guessTruncated(output, creation.MT, k);
+	creation.index = 624;
+
+	printf("Check :\n");
 	int i;
-	for (i=1; i < 30; i++){
-		printf("i = %d\n", i);
-		guessInaive(output, k, i);
+	for (i=0; i<MT_SIZE; i++){
+		printf("%08x = %08x ?\n", mask & mt_generate_number(&creation), output[i+ MT_SIZE]);
+	}
+
+	printf("Predictions :\n");
+	for (i=0; i<50; i++){
+		printf("%08x = %08x ?\n", mask & mt_generate_number(&creation), output[i+ 2 * MT_SIZE]);
 	}
 }
 
@@ -191,8 +202,8 @@ void testTempering()
 int main(/*int argc, char *argv[]*/)
 {
 	char* filename = "mtoutput.txt";
-	int n = 624* 2;
-	int k = 3;
+	int n = 1999;
+	int k = 4;
 	// Init 1Mersenne Twister
 	/*mt_internal_state_t mt_internal_state;
 	uint32_t seed = DEFAULT_SEED;
@@ -202,8 +213,8 @@ int main(/*int argc, char *argv[]*/)
 	//testUntwist(&mt_internal_state);
 	//untwistFile("mtoutput.txt");
  	
-	//testuntwisttruncatedFile(filename, n, k);
-	testTempering();
+	testuntwisttruncatedFile(filename, n, k);
+	//testTempering();
 	
 	return 0;
 }
