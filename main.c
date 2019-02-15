@@ -159,7 +159,7 @@ void guessInaive(uint32_t output[], int k, int i) //WIP
 	}
 } 
 
-void untwisttruncatedFile(char* filename, int n, int k)
+void testuntwisttruncatedFile(char* filename, int n, int k)
 /* n = length of output, k = amount of bits to remove */
 {
 	// extract values
@@ -169,10 +169,22 @@ void untwisttruncatedFile(char* filename, int n, int k)
 	guess0naive(output, k);
 
 	int i;
-	for (i=1; i < 10; i++){
+	for (i=1; i < 30; i++){
 		printf("i = %d\n", i);
 		guessInaive(output, k, i);
 	}
+}
+
+void testTempering()
+{
+	uint32_t a, b, c, d;
+	a = 0x12385678;
+	b = 0xabcdef12;
+
+	c = reverseWord(a ^ b);
+	d = reverseWord(a) ^ reverseWord(b);
+
+	printf("c = 0x%08x d = 0x%08x\n", c, d);
 }
 
 /* main */
@@ -180,7 +192,7 @@ int main(/*int argc, char *argv[]*/)
 {
 	char* filename = "mtoutput.txt";
 	int n = 624* 2;
-	int k = 4;
+	int k = 3;
 	// Init 1Mersenne Twister
 	/*mt_internal_state_t mt_internal_state;
 	uint32_t seed = DEFAULT_SEED;
@@ -189,6 +201,9 @@ int main(/*int argc, char *argv[]*/)
 	// Test
 	//testUntwist(&mt_internal_state);
 	//untwistFile("mtoutput.txt");
- 	untwisttruncatedFile(filename, n, k);
+ 	
+	//testuntwisttruncatedFile(filename, n, k);
+	testTempering();
+	
 	return 0;
 }
