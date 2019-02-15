@@ -127,9 +127,37 @@ void guess0naive(uint32_t output[], int k) /* Il realise here that there is alwy
 			}
 		}
 	}
-	printf("Done");
 } 
 
+void guessInaive(uint32_t output[], int k, int i) //WIP
+{
+	uint32_t i0, i1, i2, state, word;
+	uint32_t bound = 0x1 << k;
+	int debug = 1;
+
+	for (i0 = 0; i0 <= 1; i0++) {
+		uint32_t bit0 = (i0 << 31);
+		/*printf("0x%x\n", bit0);*/
+
+		for (i1 = 0; i1 < bound; i1++){
+			/*printf("0x%x\n", i1 <<(32-k));*/
+			uint32_t state1 = reverseWord(output[1+i] ^ (i1 << (32 - k)));
+			for (i2 = 0; i2 < bound; i2++){
+				/*printf("0x%x\n", i1 <<(32-k));*/
+				uint32_t state397 = reverseWord(output[397+i] ^ (i2 << (32 - k)));
+
+				/* RECONSTRUCTION */
+				state = reconstructState(bit0, state1, state397);
+				word = temper(state);
+				/*printf("Word = 0x%x\n", word);*/
+				if ((word & (0xffffffff >> k)) == output[624+i]){
+					printf("GOT IT %4d : bit0 = 0x%x,  i1 = 0x%x, i2 = 0x%x, new state[0] = 0x%08x\n", debug, bit0, i1, i2, state);
+					debug++;
+				} 
+			}
+		}
+	}
+} 
 
 void untwisttruncatedFile(char* filename, int n, int k)
 /* n = length of output, k = amount of bits to remove */
@@ -139,6 +167,12 @@ void untwisttruncatedFile(char* filename, int n, int k)
 	readValuesFile(filename, n, output);
 	truncatebits(output, n, k);
 	guess0naive(output, k);
+
+	int i;
+	for (i=1; i < 10; i++){
+		printf("i = %d\n", i);
+		guessInaive(output, k, i);
+	}
 }
 
 /* main */
