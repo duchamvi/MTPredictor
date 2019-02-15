@@ -7,6 +7,8 @@
 
 #define DEFAULT_SEED 5489
 
+
+/* Test the MT */
 void testMT(mt_internal_state_t mt_internal_state, 	int nbOut)
 {
 	uint32_t word;
@@ -19,7 +21,7 @@ void testMT(mt_internal_state_t mt_internal_state, 	int nbOut)
 }
 
 
-
+/* Test basic untwist */
 void testUntwist(mt_internal_state_t* mt_internal_state)
 {
 	uint32_t output[MT_SIZE];
@@ -39,13 +41,15 @@ void testUntwist(mt_internal_state_t* mt_internal_state)
 
 }
 
+
+/* Test untwist file */
 void readValuesFile(char* filename, int n, uint32_t output[]){
 	printf("Opening file %s\n", filename);
 	FILE * mtfile = fopen(filename, "r");
 	int i=0;
 	printf("Reading file %s\n", filename);
 	while ((fscanf(mtfile, "%u\n", &(output[i]))!= EOF) && i < n) {
-		printf("%u\n", output[i]);
+		/*printf("%u\n", output[i]);*/
 		i++;
 	}
 	printf("Closing file %s\n", filename);
@@ -67,9 +71,13 @@ void untwistFile(char* filename)
 	for (i=0; i<10; i++){
 		printf("%u\n", mt_generate_number(&creation));
 	}
-
 }
 
+/* clean untwist file TODO */
+
+/* Test untwist truncated TODO */
+
+/* main */
 int main(/*int argc, char *argv[]*/)
 {
 	
