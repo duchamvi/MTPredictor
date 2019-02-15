@@ -52,7 +52,7 @@ void readValuesFile(char* filename, int n, uint32_t output[]){
 		/*printf("%u\n", output[i]);*/
 		i++;
 	}
-	printf("Closing file %s\n", filename);
+	printf("Closing file %s, read %d values\n", filename, n);
 	fclose(mtfile);
 }
 
@@ -76,19 +76,85 @@ void untwistFile(char* filename)
 /* clean untwist file TODO */
 
 /* Test untwist truncated TODO */
+uint32_t reconstructState(uint32_t statei0, uint32_t statei1, uint32_t statei397)
+{
+	uint32_t state, temp;
+	temp = (statei0 & 0x80000000) + (statei1 & 0x7fffffff);
+	state =  temp >> 1; 
+	if (temp%2 != 0){
+		state ^= 0x9908b0df;
+	}
+	state ^= statei397;
+	return state;
+}
+
+void truncatebits(uint32_t output[], int n, int k)
+/* n = length of output, k = amount of bits to remove */
+{
+	uint32_t mask = 0xffffffff >> k;
+	int i;
+	for (i=0; i<n; i++){
+		output[i] &= mask;
+		/*printf("0x%8x\n", output[i]);*/
+	}
+}
+
+void guess0naive(uint32_t output[], int k) /* Il realise here that there is alwys an ouput[397] correct for output[1] correct*/
+{
+	uint32_t i0, i1, i2, state, word;
+	uint32_t bound = 0x1 << k;
+	int debug = 1;
+
+	for (i0 = 0; i0 <= 1; i0++) {
+		uint32_t bit0 = (i0 << 31);
+		/*printf("0x%x\n", bit0);*/
+
+		for (i1 = 0; i1 < bound; i1++){
+			/*printf("0x%x\n", i1 <<(32-k));*/
+			uint32_t state1 = reverseWord(output[1] ^ (i1 << (32 - k)));
+			for (i2 = 0; i2 < bound; i2++){
+				/*printf("0x%x\n", i1 <<(32-k));*/
+				uint32_t state397 = reverseWord(output[397] ^ (i2 << (32 - k)));
+
+				/* RECONSTRUCTION */
+				state = reconstructState(bit0, state1, state397);
+				word = temper(state);
+				/*printf("Word = 0x%x\n", word);*/
+				if ((word & (0xffffffff >> k)) == output[624]){
+					printf("GOT IT %4d : bit0 = 0x%x,  i1 = 0x%x, i2 = 0x%x, new state[0] = 0x%08x\n", debug, bit0, i1, i2, state);
+					debug++;
+				} 
+			}
+		}
+	}
+	printf("Done");
+} 
+
+
+void untwisttruncatedFile(char* filename, int n, int k)
+/* n = length of output, k = amount of bits to remove */
+{
+	// extract values
+	uint32_t output[n];
+	readValuesFile(filename, n, output);
+	truncatebits(output, n, k);
+	guess0naive(output, k);
+}
 
 /* main */
 int main(/*int argc, char *argv[]*/)
 {
-	
-	// Init Mersenne Twister
-	mt_internal_state_t mt_internal_state;
+	char* filename = "mtoutput.txt";
+	int n = 624* 2;
+	int k = 4;
+	// Init 1Mersenne Twister
+	/*mt_internal_state_t mt_internal_state;
 	uint32_t seed = DEFAULT_SEED;
-	mt_init(&mt_internal_state, seed);
+	mt_init(&mt_internal_state, seed);*/
 
 	// Test
 	//testUntwist(&mt_internal_state);
-	untwistFile("mtoutput.txt");
-
+	//untwistFile("mtoutput.txt");
+ 	untwisttruncatedFile(filename, n, k);
 	return 0;
 }
