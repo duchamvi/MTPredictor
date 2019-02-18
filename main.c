@@ -211,7 +211,7 @@ void readValuesDemoFile(char* filename, int n, uint32_t output[]) // Read file w
 			output[i/8] = buffer;
 		}
 		else {
-			output[i/8] += buffer << (i%8);  
+			output[i/8] += buffer << (4*(i%8));  
 		}
 		i++;
 	}
@@ -255,6 +255,8 @@ int main(/*int argc, char *argv[]*/)
 	testuntwisttruncatedFile(filename, n, k);*/
 
 	/* Demo 1 : Untwist file with 624 first values => 8*624 first outputs of the lfsr*/
+	demoUntwistFile("demo1.txt");	// Demo untwist file
+
 
 	return 0;
 }
