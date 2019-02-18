@@ -8,7 +8,7 @@
 #define DEFAULT_SEED 5489
 
 
-/* Test the MT */
+/* Functions used for technical tests*/
 void testMT(mt_internal_state_t mt_internal_state, 	int nbOut)
 {
 	uint32_t word;
@@ -21,8 +21,8 @@ void testMT(mt_internal_state_t mt_internal_state, 	int nbOut)
 }
 
 
-/* Test basic untwist */
-void testUntwist(mt_internal_state_t* mt_internal_state)
+void testUntwist(mt_internal_state_t* mt_internal_state) //Test basic untwist 
+
 {
 	uint32_t output[MT_SIZE];
 	int i;
@@ -42,8 +42,9 @@ void testUntwist(mt_internal_state_t* mt_internal_state)
 }
 
 
-/* Test untwist file */
-void readValuesFile(char* filename, int n, uint32_t output[]){
+
+void readValuesFile(char* filename, int n, uint32_t output[]) // Read 32-bits words file
+{
 	printf("Opening file %s\n", filename);
 	FILE * mtfile = fopen(filename, "r");
 	int i=0;
@@ -52,12 +53,12 @@ void readValuesFile(char* filename, int n, uint32_t output[]){
 		/*printf("%u\n", output[i]);*/
 		i++;
 	}
-	printf("Closing file %s, read %d values\n", filename, n);
+	printf("Closing file %s, read %d values\n", filename, i);
 	fclose(mtfile);
 }
 
 
-void untwistFile(char* filename)
+void untwistFile(char* filename)	// Test untwist file
 {
 	// extract values
 	uint32_t output[MT_SIZE];
@@ -73,9 +74,18 @@ void untwistFile(char* filename)
 	}
 }
 
-/* clean untwist file TODO */
+void truncatebits(uint32_t output[], int n, int k)	// truncate bits of the output
+/* n = length of output, k = amount of bits to remove */
+{
+	uint32_t mask = 0xffffffff >> k;
+	int i;
+	for (i=0; i<n; i++){
+		output[i] &= mask;
+		/*printf("0x%8x\n", output[i]);*/
+	}
+}
 
-/* Test untwist truncated TODO */
+
 uint32_t reconstructState(uint32_t statei0, uint32_t statei1, uint32_t statei397)
 {
 	uint32_t state, temp;
@@ -86,17 +96,6 @@ uint32_t reconstructState(uint32_t statei0, uint32_t statei1, uint32_t statei397
 	}
 	state ^= statei397;
 	return state;
-}
-
-void truncatebits(uint32_t output[], int n, int k)
-/* n = length of output, k = amount of bits to remove */
-{
-	uint32_t mask = 0xffffffff >> k;
-	int i;
-	for (i=0; i<n; i++){
-		output[i] &= mask;
-		/*printf("0x%8x\n", output[i]);*/
-	}
 }
 
 void guess0naive(uint32_t output[], int k) /* Il realise here that there is alwys an ouput[397] correct for output[1] correct*/
@@ -129,7 +128,7 @@ void guess0naive(uint32_t output[], int k) /* Il realise here that there is alwy
 	}
 } 
 
-void guessInaive(uint32_t output[], int k, int i) //WIP
+void guessInaive(uint32_t output[], int k, int i) 
 {
 	uint32_t i0, i1, i2, state, word;
 	uint32_t bound = 0x1 << k;
@@ -159,7 +158,7 @@ void guessInaive(uint32_t output[], int k, int i) //WIP
 	}
 } 
 
-void testuntwisttruncatedFile(char* filename, int n, int k)
+void testuntwisttruncatedFile(char* filename, int n, int k)	// Test untwist truncated file
 /* n = length of output, k = amount of bits to remove */
 {
 	
@@ -186,7 +185,7 @@ void testuntwisttruncatedFile(char* filename, int n, int k)
 	}
 }
 
-void testTempering()
+void testTempering()	// test the distributivity of the untempering function
 {
 	uint32_t a, b, c, d;
 	a = 0x12385678;
@@ -198,23 +197,43 @@ void testTempering()
 	printf("c = 0x%08x d = 0x%08x\n", c, d);
 }
 
+/* functions used for demos */
+void readValuesDemoFile(char* filename, int n, uint32_t output[]) // Read file with output divided in 8*624 unsigned integers
+{
+	uint32_t buffer;
+	printf("Opening file %s\n", filename);
+	FILE * mtfile = fopen(filename, "r");
+	int i=0;
+	printf("Reading file %s\n", filename);
+	while ((fscanf(mtfile, "%u\n", &(buffer))!= EOF) && i < n*8) {
+		/*printf("%u\n", output[i]);*/
+		if (i%8 == 0){
+			output[i/8] = buffer;
+		}
+		else {
+			output[i/8] += buffer << (i%8);  
+		}
+		i++;
+	}
+	printf("Closing file %s, read %d values\n", filename, i);
+	fclose(mtfile);
+}
+
+
+
 /* main */
 int main(/*int argc, char *argv[]*/)
 {
+	//untwistFile("mtoutput.txt"); //untwist file with 624 values
+	
+	/*
+	//untwist File with truncated values
 	char* filename = "mtoutput.txt";
 	int n = 1999;
 	int k = 4;
-	// Init 1Mersenne Twister
-	/*mt_internal_state_t mt_internal_state;
-	uint32_t seed = DEFAULT_SEED;
-	mt_init(&mt_internal_state, seed);*/
+	testuntwisttruncatedFile(filename, n, k);*/
 
-	// Test
-	//testUntwist(&mt_internal_state);
-	//untwistFile("mtoutput.txt");
- 	
-	testuntwisttruncatedFile(filename, n, k);
-	//testTempering();
-	
+	/* Demo 1 : Untwist file with 624 first values => 8*624 first outputs of the lfsr*/
+
 	return 0;
 }
