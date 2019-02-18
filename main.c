@@ -219,7 +219,28 @@ void readValuesDemoFile(char* filename, int n, uint32_t output[]) // Read file w
 	fclose(mtfile);
 }
 
+void demoUntwistFile(char* filename)	// Test untwist file
+{
+	// extract values
+	uint32_t output[MT_SIZE];
+	readValuesDemoFile(filename, MT_SIZE, output);
 
+	printf("\nPredictions :\n");
+	mt_internal_state_t creation;
+	reverseState(output, creation.MT);
+	creation.index = 624;
+	
+	char c;
+	uint32_t sortie;
+	do
+	{
+		sortie = mt_generate_number(&creation);
+		printf("%02u	%02u	%02u	%02u\n", sortie&0xf, (sortie>>4)&0xf, (sortie>>8)&0xf, (sortie>>12)&0xf);
+		sortie = sortie >> 16;
+		printf("%02u	%02u	%02u	%02u\n", sortie&0xf, (sortie>>4)&0xf, (sortie>>8)&0xf, (sortie>>12)&0xf);
+		c = getchar();
+	} while (c != 'q');
+}
 
 /* main */
 int main(/*int argc, char *argv[]*/)
