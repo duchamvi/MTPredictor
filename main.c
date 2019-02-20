@@ -242,6 +242,61 @@ void demoUntwistFile(char* filename)	// Test untwist file
 	} while (c != 'q');
 }
 
+void readValuesTruncatedDemoFile(char* filename, int n, uint32_t output[], int nbSortiesJetees) // Read file with output truncated
+{
+	int nbGardees = 8 - nbSortiesJetees;
+	uint32_t buffer;
+	printf("Opening file %s\n", filename);
+	FILE * mtfile = fopen(filename, "r");
+	int i=0;
+	printf("Reading file %s\n", filename);
+	while ((fscanf(mtfile, "%u\n", &(buffer))!= EOF) && i < n*nbGardees) {
+		/*printf("%u\n", output[i]);*/
+		if (i%nbGardees == 0){
+			output[i/nbGardees] = buffer;
+		}
+		else {
+			output[i/nbGardees] += buffer << (4*(i%nbGardees));  
+		}
+		i++;
+	}
+	printf("Closing file %s, read %d values\n", filename, i);
+	fclose(mtfile);
+}
+
+
+void demoUntwistTruncatedFile(char* filename, int nbSortiesJetees)	// Test untwist truncated file
+{
+	// extract values
+	uint32_t output[MT_SIZE];
+	readValuesTruncatedDemoFile(filename, 2*MT_SIZE, output, nbSortiesJetees);
+
+	mt_internal_state_t creation;
+	guessTruncated(output, creation.MT, 4*nbSortiesJetees);
+	creation.index = 624;
+
+	printf("Check :\n");
+	int i;
+	uint32_t dummy;
+	for (i=0; i<MT_SIZE; i++){
+		dummy = mt_generate_number(&creation);
+	}
+	
+	printf("\nPredictions :\n");
+	char c;
+	uint32_t sortie;
+	do
+	{
+		sortie = mt_generate_number(&creation);
+		for (i=0; i < 8-nbSortiesJetees; i++){
+			printf("%02u	", (sortie>> (4*i) &0xf)); 
+		}		
+		printf("\n");
+		c = getchar();
+	} while (c != 'q');
+}
+
+
 /* main */
 int main(/*int argc, char *argv[]*/)
 {
@@ -255,8 +310,9 @@ int main(/*int argc, char *argv[]*/)
 	testuntwisttruncatedFile(filename, n, k);*/
 
 	/* Demo 1 : Untwist file with 624 first values => 8*624 first outputs of the lfsr*/
-	demoUntwistFile("demo1.txt");	// Demo untwist file
-
+	demoUntwistFile("demo_mt.txt");	// Demo untwist file
+	/* Demo 2 : Untwist file with truncated values */
+	demoUntwistTruncatedFile("demo_mt_truncated.txt", 624);	// Demo untwist truncated file
 
 	return 0;
 }
