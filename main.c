@@ -251,7 +251,9 @@ void readValuesTruncatedDemoFile(char* filename, int n, uint32_t output[], int n
 	int i=0;
 	printf("Reading file %s\n", filename);
 	while ((fscanf(mtfile, "%u\n", &(buffer))!= EOF) && i < n*nbGardees) {
-		/*printf("%u\n", output[i]);*/
+		//printf("%u\n", output[i]);
+		//printf("%d\n", i);
+				
 		if (i%nbGardees == 0){
 			output[i/nbGardees] = buffer;
 		}
@@ -268,14 +270,13 @@ void readValuesTruncatedDemoFile(char* filename, int n, uint32_t output[], int n
 void demoUntwistTruncatedFile(char* filename, int nbSortiesJetees)	// Test untwist truncated file
 {
 	// extract values
-	uint32_t output[MT_SIZE];
+	uint32_t output[2*MT_SIZE];
 	readValuesTruncatedDemoFile(filename, 2*MT_SIZE, output, nbSortiesJetees);
 
 	mt_internal_state_t creation;
 	guessTruncated(output, creation.MT, 4*nbSortiesJetees);
 	creation.index = 624;
 
-	printf("Check :\n");
 	int i;
 	uint32_t dummy;
 	for (i=0; i<MT_SIZE; i++){
@@ -288,8 +289,8 @@ void demoUntwistTruncatedFile(char* filename, int nbSortiesJetees)	// Test untwi
 	do
 	{
 		sortie = mt_generate_number(&creation);
-		for (i=0; i < 8-nbSortiesJetees; i++){
-			printf("%02u	", (sortie>> (4*i) &0xf)); 
+		for (i=0; i < (8-nbSortiesJetees); i++){
+			printf("%02u	", (sortie>> (4*i)) &0xf); 
 		}		
 		printf("\n");
 		c = getchar();
@@ -309,10 +310,17 @@ int main(/*int argc, char *argv[]*/)
 	int k = 4;
 	testuntwisttruncatedFile(filename, n, k);*/
 
-	/* Demo 1 : Untwist file with 624 first values => 8*624 first outputs of the lfsr*/
-	demoUntwistFile("demo_mt.txt");	// Demo untwist file
-	/* Demo 2 : Untwist file with truncated values */
-	demoUntwistTruncatedFile("demo_mt_truncated.txt", 624);	// Demo untwist truncated file
+	int mode = 1; // 0 : mt, 1: mt_truncated
+
+	if (mode == 0){
+		/* Demo 1 : Untwist file with 624 first values => 8*624 first outputs of the lfsr*/
+		demoUntwistFile("demo_mt.txt");	// Demo untwist file
+	}
+	else
+	{
+		/* Demo 2 : Untwist file with truncated values */
+		demoUntwistTruncatedFile("demo_mt_truncated.txt", 3);	// Demo untwist truncated file
+	}
 
 	return 0;
 }

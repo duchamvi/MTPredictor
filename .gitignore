@@ -52,3 +52,5 @@ Mkfile.old
 dkms.conf
 executable
 mtoutput.txt
+untwist_mt
+untwist_truncated
