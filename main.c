@@ -128,7 +128,7 @@ void demoUntwistTruncatedFile(char* filename, int nbSortiesJetees)	// Test untwi
 int main(/*int argc, char *argv[]*/)
 {
 
-	int mode = 1; // 0 : mt, 1: mt_truncated
+	int mode = 0; // 0 : mt, 1: mt_truncated
 
 	if (mode == 0){
 		/* Demo 1 : Untwist file with 624 first values => 8*624 first outputs of the lfsr*/

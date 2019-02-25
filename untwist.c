@@ -40,7 +40,7 @@ uint32_t reverseLeftShiftXor(uint32_t number, int shift, uint32_t mask)
     return stateWord;
 }
 
-uint32_t reverseWord(uint32_t number)
+uint32_t reverseTemper(uint32_t number)
 {
     number = reverseRightShiftXor(number, 18);
     number = reverseLeftShiftXor(number, 15, 0xEFC60000);
@@ -53,7 +53,7 @@ void reverseState(uint32_t output[], uint32_t state_destination[])
 {
     int i;
     for (i=0; i<MT_SIZE; i++){
-        state_destination[i] = reverseWord(output[i]);
+        state_destination[i] = reverseTemper(output[i]);
     }
 }
 
@@ -80,7 +80,7 @@ void guess0(uint32_t output[], uint32_t stateInit[], int k)
 
 		for (i1 = 0; i1 < bound; i1++){
 			/*printf("0x%x\n", i1 <<(32-k));*/
-			uint32_t state1 = reverseWord(output[1] ^ (i1 << (32 - k)));
+			uint32_t state1 = reverseTemper(output[1] ^ (i1 << (32 - k)));
             /* RECONSTRUCTION */
             state = reconstructPartialState(bit0, state1);
             word = temper(state) ^ output[397];
@@ -100,7 +100,7 @@ void guessi(uint32_t output[], uint32_t stateInit[], int k, int i)
 
     for (i1 = 0; i1 < bound; i1++){
         /*printf("0x%x\n", i1 <<(32-k));*/
-        uint32_t state1 = reverseWord(output[i + 1] ^ (i1 << (32 - k)));
+        uint32_t state1 = reverseTemper(output[i + 1] ^ (i1 << (32 - k)));
         /* RECONSTRUCTION */
         state = reconstructPartialState(stateInit[i], state1);
         word = temper(state) ^ output[i + 397];
