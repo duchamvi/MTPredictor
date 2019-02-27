@@ -37,10 +37,10 @@ mt_internal_state_t mt_empty_state()
 	initialize Mersenne Twister empty state
 	ouput : empty mt_internal_state
 	*/
-    mt_internal_state_t state;
-	state.index = 624;
-	// Remark : state.MT is an array with the 624 internal state 32-bit words
-    return state;
+    mt_internal_state_t mt;
+	mt.index = 624;
+	// Remark : mt.MT is an array with the 624 internal state 32-bit words
+    return mt;
 }
 
 
@@ -66,23 +66,23 @@ uint32_t mt_reverse_temper(uint32_t ouput_word)
 } 
 
 
-void mt_twist(mt_internal_state_t * mt_state)
+void mt_twist(mt_internal_state_t * mt)
 {
 	/*
 	twist function of the Mersenne Twister 
 	input : mt_internal_state*
 	*/
-    twist(mt_state);
+    twist(mt);
 } 
 
 
-void mt_generate_next_ouput(mt_internal_state_t state)
+void mt_generate_next_ouput(mt_internal_state_t * mt)
 {
 	/*
 	generate the next outputs for the wheel
 	input : mt_internal_state*
 	*/
-    uint32_t sortie = mt_generate_number(&state);
+    uint32_t sortie = mt_generate_number(mt);
     printf("%02u	%02u	%02u	%02u\n", sortie&0xf, (sortie>>4)&0xf, (sortie>>8)&0xf, (sortie>>12)&0xf);
     sortie = sortie >> 16;
     printf("%02u	%02u	%02u	%02u\n", sortie&0xf, (sortie>>4)&0xf, (sortie>>8)&0xf, (sortie>>12)&0xf);
@@ -92,6 +92,11 @@ void mt_generate_next_ouput(mt_internal_state_t state)
 /* main */
 int main()
 {
+	/* Lecture des 624 sorties*/
+	uint32_t output[MT_SIZE];
+	readOutputFile("demo_mt.txt", 624, output); 
+	
 	/* Compléter */ 
+
 	return 0;
 }
